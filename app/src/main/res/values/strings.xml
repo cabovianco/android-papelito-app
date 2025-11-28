@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Papelito</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="continue_button">Continue</string>
+    <string name="save_button">Save</string>
+    <string name="delete_note_bottom_sheet_title">Delete</string>
+    <string name="delete_note_bottom_sheet_description">Are you sure you want to delete this note? This action cannot be undone.</string>
+</resources>
