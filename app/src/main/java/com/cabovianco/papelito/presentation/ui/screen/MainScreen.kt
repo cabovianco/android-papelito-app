@@ -49,6 +49,7 @@ import com.cabovianco.papelito.presentation.navigation.Screen
 import com.cabovianco.papelito.presentation.state.MainUiState
 import com.cabovianco.papelito.presentation.ui.screen.shared.CancelButton
 import com.cabovianco.papelito.presentation.ui.screen.shared.ConfirmButton
+import com.cabovianco.papelito.presentation.ui.theme.Fascinate
 import com.cabovianco.papelito.presentation.ui.theme.LocalColorScheme
 import com.cabovianco.papelito.presentation.viewmodel.MainViewModel
 
@@ -98,8 +99,9 @@ private fun AppBar(modifier: Modifier = Modifier) {
     Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
         Text(
             text = stringResource(R.string.app_name),
-            fontSize = 24.sp,
+            fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
+            fontFamily = Fascinate,
             color = colors.onBackground
         )
     }
