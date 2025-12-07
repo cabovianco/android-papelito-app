@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -36,32 +35,40 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import com.cabovianco.papelito.R
 import com.cabovianco.papelito.domain.model.Note
+import com.cabovianco.papelito.presentation.navigation.Screen
 import com.cabovianco.papelito.presentation.state.MainUiState
-import com.cabovianco.papelito.presentation.ui.screen.shared.PrimaryButton
-import com.cabovianco.papelito.presentation.ui.screen.shared.SecondaryButton
+import com.cabovianco.papelito.presentation.ui.screen.shared.CancelButton
+import com.cabovianco.papelito.presentation.ui.screen.shared.ConfirmButton
 import com.cabovianco.papelito.presentation.ui.theme.LocalColorScheme
+import com.cabovianco.papelito.presentation.viewmodel.MainViewModel
 
 @Composable
 fun MainScreen(
-    state: MainUiState,
-    onAddNoteClick: () -> Unit,
-    onEditNoteClick: (Note) -> Unit,
-    onDeleteNoteClick: (Note) -> Unit,
+    viewmodel: MainViewModel,
+    navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
+    val uiState by viewmodel.uiState.collectAsStateWithLifecycle()
+
     Box(modifier = modifier) {
-        Container(state, onEditNoteClick, onDeleteNoteClick)
+        MainContainer(
+            uiState,
+            onEditNoteClick = { navController.navigate(Screen.EditNoteScreen.navTo(it.id)) },
+            onDeleteNoteClick = { viewmodel.deleteNote(it) }
+        )
+
         AddNoteButton(
-            onAddNoteClick,
+            onClick = { navController.navigate(Screen.AddNoteScreen.route) },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(16.dp)
@@ -70,8 +77,8 @@ fun MainScreen(
 }
 
 @Composable
-private fun Container(
-    state: MainUiState,
+private fun MainContainer(
+    uiState: MainUiState,
     onEditNoteClick: (Note) -> Unit,
     onDeleteNoteClick: (Note) -> Unit,
     modifier: Modifier = Modifier
@@ -79,17 +86,16 @@ private fun Container(
     Column(
         modifier = modifier.fillMaxWidth()
     ) {
-        AppTitle()
-        Spacer(modifier = Modifier.height(8.dp))
-        Content(state, onEditNoteClick, onDeleteNoteClick)
+        AppBar(modifier = Modifier.padding(bottom = 16.dp))
+        MainContent(uiState, onEditNoteClick, onDeleteNoteClick)
     }
 }
 
 @Composable
-private fun AppTitle(modifier: Modifier = Modifier) {
+private fun AppBar(modifier: Modifier = Modifier) {
     val colors = LocalColorScheme.current
 
-    Box(modifier = modifier) {
+    Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
         Text(
             text = stringResource(R.string.app_name),
             fontSize = 24.sp,
@@ -100,51 +106,60 @@ private fun AppTitle(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun Content(
-    state: MainUiState,
+private fun MainContent(
+    uiState: MainUiState,
     onEditNoteClick: (Note) -> Unit,
     onDeleteNoteClick: (Note) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val colors = LocalColorScheme.current
-
-    Column(
-        modifier = modifier
-    ) {
-        TagsContainer()
-        Spacer(modifier = Modifier.height(8.dp))
-
-        when (state) {
-            is MainUiState.Success -> NotesContainer(
-                state.notes,
-                onEditNoteClick,
-                onDeleteNoteClick
-            )
+    Column(modifier = modifier) {
+        when (uiState) {
+            is MainUiState.Success -> {
+                NotesContainer(uiState, onEditNoteClick, onDeleteNoteClick)
+            }
 
             is MainUiState.Loading -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = colors.primary)
-                }
+                LoadingContainer()
             }
         }
     }
 }
 
 @Composable
-private fun TagsContainer(modifier: Modifier = Modifier) {
+private fun NotesContainer(
+    uiState: MainUiState.Success,
+    onEditNoteClick: (Note) -> Unit,
+    onDeleteNoteClick: (Note) -> Unit
+) {
+    var clickedNote by remember { mutableStateOf<Note?>(null) }
 
+    NotesGrid(
+        notes = uiState.notes,
+        onNoteClicked = { clickedNote = it },
+    )
+
+    clickedNote?.let { note ->
+        NoteDialog(
+            note,
+            onDismissRequest = { clickedNote = null },
+            onEditNoteClick = {
+                onEditNoteClick(note)
+                clickedNote = null
+            },
+            onDeleteNoteClick = {
+                onDeleteNoteClick(note)
+                clickedNote = null
+            }
+        )
+    }
 }
 
 @Composable
-private fun NotesContainer(
+private fun NotesGrid(
     notes: List<Note>,
-    onEditNoteClick: (Note) -> Unit,
-    onDeleteNoteClick: (Note) -> Unit,
+    onNoteClicked: (Note) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var openDialog by remember { mutableStateOf(false) }
-    var clickedNote: Note? by remember { mutableStateOf(null) }
-
     LazyVerticalStaggeredGrid(
         modifier = modifier,
         columns = StaggeredGridCells.Adaptive(minSize = 128.dp),
@@ -153,36 +168,18 @@ private fun NotesContainer(
         contentPadding = PaddingValues(bottom = 64.dp)
     ) {
         items(notes) {
-            NoteItem(it, {
-                openDialog = true
-                clickedNote = it
-            })
+            NoteItem(note = it, onClick = onNoteClicked)
         }
-    }
-
-    if (openDialog && clickedNote != null) {
-        NoteDialog(
-            clickedNote!!,
-            { openDialog = false },
-            {
-                onEditNoteClick(it)
-                openDialog = false
-            },
-            {
-                onDeleteNoteClick(it)
-                openDialog = false
-            }
-        )
     }
 }
 
 @Composable
-private fun NoteItem(note: Note, onClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun NoteItem(note: Note, onClick: (Note) -> Unit, modifier: Modifier = Modifier) {
     ElevatedCard(
         modifier = modifier,
-        onClick = onClick,
+        onClick = { onClick(note) },
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = note.backgroundColor.value)
     ) {
         NoteContent(note)
     }
@@ -195,7 +192,8 @@ private fun NoteContent(note: Note, modifier: Modifier = Modifier) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            text = note.text
+            text = note.text,
+            color = note.fontColor.value
         )
     }
 }
@@ -204,8 +202,8 @@ private fun NoteContent(note: Note, modifier: Modifier = Modifier) {
 private fun NoteDialog(
     note: Note,
     onDismissRequest: () -> Unit,
-    onEditNoteClick: (Note) -> Unit,
-    onDeleteNoteClick: (Note) -> Unit,
+    onEditNoteClick: () -> Unit,
+    onDeleteNoteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Dialog(onDismissRequest = onDismissRequest) {
@@ -213,15 +211,12 @@ private fun NoteDialog(
             ElevatedCard(
                 modifier = Modifier.size(width = 256.dp, height = 288.dp),
                 shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.White,
-                    contentColor = Color.Black
-                )
+                colors = CardDefaults.cardColors(containerColor = note.backgroundColor.value)
             ) {
                 NoteContent(note, modifier = Modifier.verticalScroll(rememberScrollState()))
             }
 
-            NoteDialogActions({ onEditNoteClick(note) }, { onDeleteNoteClick(note) })
+            NoteDialogActions(onEditNoteClick, onDeleteNoteClick)
         }
     }
 }
@@ -232,32 +227,31 @@ private fun NoteDialogActions(
     onDeleteNoteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var showDeleteBottomSheet by remember { mutableStateOf(false) }
+    var deleteButtonClicked by remember { mutableStateOf(false) }
 
     Row(
         modifier = modifier
             .width(256.dp)
-            .padding(vertical = 4.dp),
+            .padding(vertical = 8.dp),
         horizontalArrangement = Arrangement.End
     ) {
-        NoteDialogButton(onEditNoteClick) {
-            Icon(painterResource(R.drawable.edit), null)
+        NoteDialogButton(modifier = Modifier.padding(end = 8.dp), onClick = onEditNoteClick) {
+            Icon(painter = painterResource(R.drawable.edit), contentDescription = null)
         }
 
-        Spacer(modifier = Modifier.width(4.dp))
 
-        NoteDialogButton({ showDeleteBottomSheet = true }) {
-            Icon(painterResource(R.drawable.delete), null)
+        NoteDialogButton(onClick = { deleteButtonClicked = true }) {
+            Icon(painter = painterResource(R.drawable.delete), contentDescription = null)
         }
     }
 
-    if (showDeleteBottomSheet) {
+    if (deleteButtonClicked) {
         DeleteNoteBottomSheet(
-            {
+            onAcceptRequest = {
                 onDeleteNoteClick()
-                showDeleteBottomSheet = false
+                deleteButtonClicked = false
             },
-            { showDeleteBottomSheet = false }
+            onDismissRequest = { deleteButtonClicked = false }
         )
     }
 }
@@ -271,12 +265,13 @@ private fun NoteDialogButton(
     val colors = LocalColorScheme.current
 
     FilledIconButton(
-        modifier = modifier,
+        modifier = modifier.size(48.dp),
         onClick = onClick,
         colors = IconButtonDefaults.iconButtonColors(
             containerColor = colors.primary,
             contentColor = colors.onPrimary
         ),
+        shape = RoundedCornerShape(16.dp),
         content = content
     )
 }
@@ -301,34 +296,55 @@ private fun DeleteNoteBottomSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 16.dp, top = 16.dp, end = 16.dp)
+                .padding(start = 16.dp, top = 16.dp, end = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
-                text = stringResource(R.string.delete_note_bottom_sheet_title),
-                fontSize = 26.sp,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(text = stringResource(R.string.delete_note_bottom_sheet_description))
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            SecondaryButton(
-                stringResource(R.string.cancel_button),
-                onDismissRequest,
-                modifier = Modifier.height(56.dp)
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            PrimaryButton(
-                stringResource(R.string.continue_button),
-                onAcceptRequest,
-                modifier = Modifier.height(56.dp)
-            )
+            DeleteNoteBottomSheetInfo()
+            DeleteNoteBottomSheetActions(onAcceptRequest, onDismissRequest)
         }
+    }
+}
+
+@Composable
+private fun DeleteNoteBottomSheetInfo(modifier: Modifier = Modifier) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Text(
+            text = stringResource(R.string.delete_note_bottom_sheet_title),
+            fontSize = 26.sp,
+            fontWeight = FontWeight.Bold
+        )
+
+        Text(text = stringResource(R.string.delete_note_bottom_sheet_description))
+    }
+}
+
+@Composable
+private fun DeleteNoteBottomSheetActions(
+    onAcceptRequest: () -> Unit,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        CancelButton(
+            title = stringResource(R.string.cancel_button),
+            onClick = onDismissRequest,
+            modifier = Modifier.height(60.dp)
+        )
+
+        ConfirmButton(
+            title = stringResource(R.string.continue_button),
+            onClick = onAcceptRequest,
+            modifier = Modifier.height(60.dp)
+        )
+    }
+}
+
+@Composable
+private fun LoadingContainer(modifier: Modifier = Modifier) {
+    val colors = LocalColorScheme.current
+
+    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        CircularProgressIndicator(color = colors.primary)
     }
 }
 
@@ -337,9 +353,9 @@ private fun AddNoteButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
     val colors = LocalColorScheme.current
 
     Button(
-        modifier = modifier.width(96.dp),
+        modifier = modifier.size(96.dp, 48.dp),
         onClick = onClick,
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(18.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = colors.primary,
             contentColor = colors.onPrimary

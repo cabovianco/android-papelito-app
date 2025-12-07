@@ -3,7 +3,7 @@ package com.cabovianco.papelito.domain.model
 import com.cabovianco.papelito.data.local.entity.TagEntity
 
 data class Tag(
-    val id: Long = 0,
+    val id: Long,
     val name: String
 )
 

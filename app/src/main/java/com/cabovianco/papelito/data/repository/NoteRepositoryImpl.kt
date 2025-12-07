@@ -12,21 +12,18 @@ import kotlinx.coroutines.flow.map
 class NoteRepositoryImpl @Inject constructor(
     private val noteDao: NoteDao
 ) : NoteRepository {
-    override suspend fun add(note: Note) {
-        noteDao.insert(note.toEntity())
-    }
-
     override fun getAll(): Flow<List<Note>> =
         noteDao.getAll().map { it.map { note -> note.toModel() } }
 
     override fun getById(id: Long): Flow<Note?> =
         noteDao.getById(id).map { it?.toModel() }
 
-    override suspend fun update(note: Note) {
-        noteDao.update(note.toEntity())
-    }
+    override suspend fun add(note: Note): Result<Unit> =
+        runCatching { noteDao.insert(note.toEntity()) }
 
-    override suspend fun delete(note: Note) {
-        noteDao.delete(note.toEntity())
-    }
+    override suspend fun update(note: Note): Result<Unit> =
+        runCatching { noteDao.update(note.toEntity()) }
+
+    override suspend fun delete(note: Note): Result<Unit> =
+        runCatching { noteDao.delete(note.toEntity()) }
 }

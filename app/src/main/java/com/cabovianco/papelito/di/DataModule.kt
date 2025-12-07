@@ -13,7 +13,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 data object DataModule {
-    private const val DATABASE_NAME = "papelito_db"
+    private const val DATABASE_NAME = "PAPELITO_DB"
 
     @Provides
     @Singleton

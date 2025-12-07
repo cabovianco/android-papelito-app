@@ -18,7 +18,7 @@ interface NoteDao {
 
     @Query(
         """
-        SELECT notes.id, notes.text
+        SELECT notes.id, notes.text, notes.backgroundColor, notes.fontColor
         FROM notes
         INNER JOIN notes_tags ON (notes.id = notes_tags.noteId AND notes_tags.tagId = :id)
     """

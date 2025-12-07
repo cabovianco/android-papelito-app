@@ -4,13 +4,9 @@ import com.cabovianco.papelito.domain.model.Note
 import kotlinx.coroutines.flow.Flow
 
 interface NoteRepository {
-    suspend fun add(note: Note)
-
     fun getAll(): Flow<List<Note>>
-
     fun getById(id: Long): Flow<Note?>
-
-    suspend fun update(note: Note)
-
-    suspend fun delete(note: Note)
+    suspend fun add(note: Note): Result<Unit>
+    suspend fun update(note: Note): Result<Unit>
+    suspend fun delete(note: Note): Result<Unit>
 }

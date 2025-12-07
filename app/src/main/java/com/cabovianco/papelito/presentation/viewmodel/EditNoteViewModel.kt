@@ -16,16 +16,25 @@ class EditNoteViewModel @Inject constructor(
     fun editNoteById(id: Long) {
         viewModelScope.launch {
             getNoteByIdUseCase(id).collect { note ->
-                _uiState.update { it.copy(id, note?.text ?: "") }
+                if (note == null) {
+                    return@collect
+                }
+
+                mutableUiState.update {
+                    with(note) {
+                        it.copy(
+                            noteId = id,
+                            noteText = text,
+                            noteBackgroundColor = backgroundColor,
+                            noteFontColor = fontColor
+                        )
+                    }
+                }
             }
         }
     }
 
-    fun onSaveButtonClick(): Result<Unit> {
-        createNote()
-            .onSuccess { viewModelScope.launch { updateNoteUseCase(it) } }
-            .onFailure { return Result.failure(it) }
-
-        return Result.success(Unit)
+    fun onSaveButtonClick() {
+        super.saveNote { updateNoteUseCase(it) }
     }
 }

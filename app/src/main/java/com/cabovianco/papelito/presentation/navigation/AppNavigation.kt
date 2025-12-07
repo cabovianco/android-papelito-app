@@ -10,12 +10,9 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -47,30 +44,20 @@ fun AppNavigation(
     ) {
         composable(route = Screen.MainScreen.route) {
             val viewmodel = hiltViewModel<MainViewModel>()
-            val uiState by viewmodel.uiState.collectAsStateWithLifecycle()
 
             MainScreen(
-                state = uiState,
-                onAddNoteClick = { navController.navigate(Screen.AddNoteScreen.route) },
-                onEditNoteClick = { navController.navigate(Screen.EditNoteScreen.navTo(it.id)) },
-                onDeleteNoteClick = { viewmodel.deleteNote(it) },
+                viewmodel,
+                navController,
                 modifier = screenModifier.padding(start = 16.dp, top = 16.dp, end = 16.dp)
             )
         }
 
         composable(route = Screen.AddNoteScreen.route) {
             val viewmodel = hiltViewModel<AddNoteViewModel>()
-            val uiState by viewmodel.uiState.collectAsState()
 
             AddNoteScreen(
-                onNavigateBackButtonClick = { navController.navigateUp() },
-                noteTextValue = uiState.noteText,
-                onNoteTextChange = { viewmodel.onNoteTextUpdate(it) },
-                onCancelButtonClick = { navController.navigateUp() },
-                onSaveButtonClick = {
-                    viewmodel.onSaveButtonClick()
-                        .onSuccess { navController.navigateUp() }
-                },
+                viewmodel,
+                navController,
                 modifier = screenModifier.padding(16.dp)
             )
         }
@@ -82,19 +69,12 @@ fun AppNavigation(
             val id = backStackEntry.arguments?.getLong("id") ?: -1
 
             val viewmodel: EditNoteViewModel = hiltViewModel()
-            val uiState by viewmodel.uiState.collectAsStateWithLifecycle()
 
             LaunchedEffect(Unit) { viewmodel.editNoteById(id) }
 
             EditNoteScreen(
-                onNavigateBackButtonClick = { navController.navigateUp() },
-                noteTextValue = uiState.noteText,
-                onNoteTextChange = { viewmodel.onNoteTextUpdate(it) },
-                onCancelButtonClick = { navController.navigateUp() },
-                onSaveButtonClick = {
-                    viewmodel.onSaveButtonClick()
-                        .onSuccess { navController.navigateUp() }
-                },
+                viewmodel,
+                navController,
                 modifier = screenModifier.padding(16.dp)
             )
         }
