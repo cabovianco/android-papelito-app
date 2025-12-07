@@ -109,7 +109,7 @@ private fun NoteContent(
                 .padding(16.dp),
             value = text,
             onValueChange = { onTextChange(it) },
-            textStyle = TextStyle(color = fontColor.value)
+            textStyle = TextStyle(color = fontColor.value, fontSize = 16.sp)
         )
     }
 }

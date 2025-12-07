@@ -193,6 +193,7 @@ private fun NoteContent(note: Note, modifier: Modifier = Modifier) {
                 .fillMaxWidth()
                 .padding(16.dp),
             text = note.text,
+            fontSize = 15.sp,
             color = note.fontColor.value
         )
     }
