@@ -33,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -40,9 +41,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cabovianco.papelito.R
+import com.cabovianco.papelito.domain.model.NoteColor
 import com.cabovianco.papelito.presentation.state.FormNoteUiState
 import com.cabovianco.papelito.presentation.ui.theme.LocalColorScheme
-import com.cabovianco.papelito.domain.model.Color as NoteColor
 
 @Composable
 fun FormScreen(
@@ -109,7 +110,8 @@ private fun NoteContent(
                 .padding(16.dp),
             value = text,
             onValueChange = { onTextChange(it) },
-            textStyle = TextStyle(color = fontColor.value, fontSize = 16.sp)
+            textStyle = TextStyle(color = fontColor.value, fontSize = 16.sp),
+            cursorBrush = SolidColor(fontColor.value)
         )
     }
 }
@@ -155,6 +157,11 @@ private fun NoteEditorContent(
 ) {
     var editMode by remember { mutableStateOf(EditMode.Background) }
 
+    val title = stringResource(when (editMode) {
+        EditMode.Background -> R.string.background_color_note_property
+        EditMode.Font -> R.string.font_color_note_property
+    })
+
     val selected = when (editMode) {
         EditMode.Background -> uiState.noteBackgroundColor
         EditMode.Font -> uiState.noteFontColor
@@ -167,6 +174,7 @@ private fun NoteEditorContent(
 
     Column(modifier = modifier) {
         SelectNoteColor(
+            title = title,
             selected,
             onSelectedChange = { onSelectedChange(it) },
             selectionButtonIcon = {
@@ -246,6 +254,7 @@ private fun NotePropertyContainer(
 
 @Composable
 private fun SelectNoteColor(
+    title: String,
     selected: NoteColor,
     onSelectedChange: (NoteColor) -> Unit,
     selectionButtonIcon: @Composable RowScope.() -> Unit,
@@ -256,7 +265,7 @@ private fun SelectNoteColor(
 
     NotePropertyContainer(
         modifier = modifier,
-        title = stringResource(R.string.color_note_property)
+        title = title
     ) {
         Row(
             modifier = Modifier.horizontalScroll(rememberScrollState()),

@@ -2,8 +2,8 @@ package com.cabovianco.papelito.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cabovianco.papelito.domain.model.Color
 import com.cabovianco.papelito.domain.model.Note
+import com.cabovianco.papelito.domain.model.NoteColor
 import com.cabovianco.papelito.presentation.event.FormNoteUiEvent
 import com.cabovianco.papelito.presentation.state.FormNoteUiState
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -25,11 +25,11 @@ open class FormNoteViewModel : ViewModel() {
         mutableUiState.update { it.copy(noteText = text) }
     }
 
-    fun onNoteBackgroundColorUpdate(color: Color) {
+    fun onNoteBackgroundColorUpdate(color: NoteColor) {
         mutableUiState.update { it.copy(noteBackgroundColor = color) }
     }
 
-    fun onNoteFontColorUpdate(color: Color) {
+    fun onNoteFontColorUpdate(color: NoteColor) {
         mutableUiState.update { it.copy(noteFontColor = color) }
     }
 

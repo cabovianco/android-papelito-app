@@ -14,9 +14,7 @@ data class ColorScheme(
     val primary: Color,
     val onPrimary: Color,
     val secondary: Color,
-    val onSecondary: Color,
-    val accent: Color,
-    val onAccent: Color
+    val onSecondary: Color
 )
 
 private val lightColorScheme = ColorScheme(
@@ -27,9 +25,7 @@ private val lightColorScheme = ColorScheme(
     primary = lightPrimary,
     onPrimary = lightOnPrimary,
     secondary = lightSecondary,
-    onSecondary = lightOnSecondary,
-    accent = lightAccent,
-    onAccent = lightOnAccent
+    onSecondary = lightOnSecondary
 )
 
 val LocalColorScheme = staticCompositionLocalOf { lightColorScheme }
