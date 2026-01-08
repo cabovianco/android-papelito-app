@@ -6,6 +6,6 @@
     <string name="delete_note_title">Delete</string>
     <string name="delete_note_description">Are you sure you want to delete this note? This action cannot be undone.</string>
     <string name="color_selection_title">Color</string>
-    <string name="font_color_label">Font</string>
+    <string name="font_color_label">Text</string>
     <string name="background_color_label">Background</string>
 </resources>

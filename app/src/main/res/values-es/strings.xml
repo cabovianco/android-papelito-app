@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Papelito</string>
+    <string name="action_cancel">Cancelar</string>
+    <string name="action_continue">Continuar</string>
+    <string name="action_save">Guardar</string>
+    <string name="delete_note_title">Eliminar</string>
+    <string name="delete_note_description">¿Seguro que quieres eliminar esta nota? Esta acción no se puede deshacer.</string>
+    <string name="color_selection_title">Color</string>
+    <string name="font_color_label">Texto</string>
+    <string name="background_color_label">Fondo</string>
+</resources>
