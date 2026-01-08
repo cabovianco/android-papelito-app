@@ -1,10 +1,11 @@
 <resources>
     <string name="app_name">Papelito</string>
-    <string name="cancel_button">Cancel</string>
-    <string name="continue_button">Continue</string>
-    <string name="save_button">Save</string>
-    <string name="delete_note_bottom_sheet_title">Delete</string>
-    <string name="delete_note_bottom_sheet_description">Are you sure you want to delete this note? This action cannot be undone.</string>
-    <string name="font_color_note_property">Font Color</string>
-    <string name="background_color_note_property">Background Color</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_continue">Continue</string>
+    <string name="action_save">Save</string>
+    <string name="delete_note_title">Delete</string>
+    <string name="delete_note_description">Are you sure you want to delete this note? This action cannot be undone.</string>
+    <string name="color_selection_title">Color</string>
+    <string name="font_color_label">Font</string>
+    <string name="background_color_label">Background</string>
 </resources>

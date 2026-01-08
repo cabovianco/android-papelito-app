@@ -1,13 +1,13 @@
 package com.cabovianco.papelito.presentation.ui.screen.shared
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,14 +16,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.Icon
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,14 +35,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.cabovianco.papelito.R
 import com.cabovianco.papelito.domain.model.NoteColor
 import com.cabovianco.papelito.presentation.state.FormNoteUiState
@@ -65,6 +67,7 @@ fun FormScreen(
             onCancelButtonClick,
             onSaveButtonClick,
             modifier = Modifier.weight(1f)
+                .padding(horizontal = 16.dp)
         )
     }
 }
@@ -78,7 +81,7 @@ private fun NoteContainer(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .fillMaxHeight(0.5f),
+            .fillMaxHeight(0.45f),
         contentAlignment = Alignment.Center
     ) {
         NoteContent(
@@ -99,7 +102,7 @@ private fun NoteContent(
     modifier: Modifier = Modifier
 ) {
     ElevatedCard(
-        modifier = modifier.fillMaxSize(0.8f),
+        modifier = modifier.size(288.dp),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = backgroundColor.value),
         elevation = CardDefaults.elevatedCardElevation(2.dp)
@@ -125,14 +128,8 @@ private fun NoteEditorContainer(
     onSaveButtonClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val colors = LocalColorScheme.current
-    val shape = RoundedCornerShape(16.dp)
-
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .shadow(elevation = 2.dp, shape = shape)
-            .background(color = colors.surface, shape = shape),
+        modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         NoteEditorContent(
@@ -146,8 +143,6 @@ private fun NoteEditorContainer(
     }
 }
 
-private enum class EditMode { Background, Font }
-
 @Composable
 private fun NoteEditorContent(
     uiState: FormNoteUiState,
@@ -155,44 +150,161 @@ private fun NoteEditorContent(
     onNoteFontColorChange: (NoteColor) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var editMode by remember { mutableStateOf(EditMode.Background) }
-
-    val title = stringResource(when (editMode) {
-        EditMode.Background -> R.string.background_color_note_property
-        EditMode.Font -> R.string.font_color_note_property
-    })
-
-    val selected = when (editMode) {
-        EditMode.Background -> uiState.noteBackgroundColor
-        EditMode.Font -> uiState.noteFontColor
-    }
-
-    val onSelectedChange = when (editMode) {
-        EditMode.Background -> onNoteBackgroundColorChange
-        EditMode.Font -> onNoteFontColorChange
-    }
-
     Column(modifier = modifier) {
-        SelectNoteColor(
-            title = title,
-            selected,
-            onSelectedChange = { onSelectedChange(it) },
-            selectionButtonIcon = {
-                Icon(
-                    painter = painterResource(
-                        if (editMode == EditMode.Background) R.drawable.font
-                        else R.drawable.paint_bucket
-                    ),
-                    contentDescription = null
+        ColorPropertyContainer(uiState, onNoteBackgroundColorChange, onNoteFontColorChange)
+    }
+}
+
+@Composable
+private fun ColorPropertyContainer(
+    uiState: FormNoteUiState,
+    onNoteBackgroundColorChange: (NoteColor) -> Unit,
+    onNoteFontColorChange: (NoteColor) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    NotePropertyContainer(
+        title = stringResource(R.string.color_selection_title),
+        items = listOf(
+            backgroundColorPropertyItem(color = uiState.noteBackgroundColor, onColorChange = onNoteBackgroundColorChange),
+            fontColorPropertyItem(color = uiState.noteFontColor, onColorChange = onNoteFontColorChange)
+        ),
+        modifier
+    )
+}
+
+@Composable
+private fun backgroundColorPropertyItem(color: NoteColor, onColorChange: (NoteColor) -> Unit) =
+    PropertyItem(label = stringResource(R.string.background_color_label)) {
+        ColorPicker(color, onColorChange)
+    }
+
+@Composable
+private fun fontColorPropertyItem(color: NoteColor, onColorChange: (NoteColor) -> Unit) =
+    PropertyItem(label = stringResource(R.string.font_color_label)) {
+        ColorPicker(color, onColorChange)
+    }
+
+@Composable
+private fun ColorPicker(color: NoteColor, onColorChange: (NoteColor) -> Unit) {
+    var clicked by remember { mutableStateOf(false) }
+
+    ColorPickerItem(color, onClick = { clicked = true }, modifier = Modifier.size(32.dp))
+
+    if (clicked) {
+        ColorPickerDialog(color, onColorChange, onDismissRequest = { clicked = false })
+    }
+}
+
+@Composable
+private fun ColorPickerItem(color: NoteColor, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    ElevatedButton(
+        modifier = modifier,
+        onClick = onClick,
+        shape = CircleShape,
+        colors = ButtonDefaults.buttonColors(containerColor = color.value)
+    ) { }
+}
+
+@Composable
+private fun ColorPickerDialog(
+    color: NoteColor,
+    onColorChange: (NoteColor) -> Unit,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val colors = LocalColorScheme.current
+
+    Dialog(onDismissRequest = onDismissRequest) {
+        LazyVerticalGrid(
+            modifier = modifier
+                .width(256.dp)
+                .background(color = colors.surface, shape = RoundedCornerShape(16.dp))
+                .padding(14.dp),
+            columns = GridCells.FixedSize(48.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+            contentPadding = PaddingValues(2.dp)
+        ) {
+            items(NoteColor.entries) {
+                ColorPickerItem(
+                    color = it,
+                    onClick = { onColorChange(it) },
+                    modifier = Modifier
+                        .size(48.dp)
+                        .then(
+                            if (it == color) Modifier
+                                .padding(4.dp)
+                                .border(
+                                    border = BorderStroke(width = 2.dp, color = colors.onSurface),
+                                    shape = CircleShape
+                                )
+                            else Modifier
+                        )
                 )
-            },
-            onSelectionButtonClick = {
-                editMode = when (editMode) {
-                    EditMode.Background -> EditMode.Font
-                    EditMode.Font -> EditMode.Background
+            }
+        }
+    }
+}
+
+private data class PropertyItem(val label: String, val content: @Composable () -> Unit)
+
+@Composable
+private fun NotePropertyContainer(
+    title: String,
+    items: List<PropertyItem>,
+    modifier: Modifier = Modifier
+) {
+    val colors = LocalColorScheme.current
+
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = title,
+            color = colors.onSurface,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Bold
+        )
+
+        ElevatedCard(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = colors.surface,
+                contentColor = colors.onSurface
+            )
+        ) {
+            items.forEachIndexed { index, item ->
+                NotePropertyItem(item)
+
+                if (index != items.lastIndex) {
+                    HorizontalDivider(modifier = Modifier.fillMaxWidth(), color = colors.background)
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun NotePropertyItem(item: PropertyItem, modifier: Modifier = Modifier) {
+    val colors = LocalColorScheme.current
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(52.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = item.label,
+            color = colors.onSurface,
+            fontSize = 14.sp
         )
+
+        item.content()
     }
 }
 
@@ -205,111 +317,26 @@ private fun NoteEditorActions(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
+        val buttonModifier = Modifier
+            .height(48.dp)
+            .weight(0.5f)
+
         CancelButton(
-            modifier = modifier
-                .height(48.dp)
-                .weight(0.5f),
-            title = stringResource(R.string.cancel_button),
+            modifier = buttonModifier,
+            title = stringResource(R.string.action_cancel),
             onClick = onCancelButtonClick
         )
 
-        Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.width(24.dp))
 
         ConfirmButton(
-            modifier = modifier
-                .height(48.dp)
-                .weight(0.5f),
-            title = stringResource(R.string.save_button),
+            modifier = buttonModifier,
+            title = stringResource(R.string.action_save),
             onClick = onSaveButtonClick
         )
-    }
-}
-
-@Composable
-private fun NotePropertyContainer(
-    title: String,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
-    val colors = LocalColorScheme.current
-
-    Column(
-        modifier = modifier.padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text(
-            text = title,
-            color = colors.onSurface,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Bold
-        )
-
-        content()
-    }
-}
-
-@Composable
-private fun SelectNoteColor(
-    title: String,
-    selected: NoteColor,
-    onSelectedChange: (NoteColor) -> Unit,
-    selectionButtonIcon: @Composable RowScope.() -> Unit,
-    onSelectionButtonClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val colors = LocalColorScheme.current
-
-    NotePropertyContainer(
-        modifier = modifier,
-        title = title
-    ) {
-        Row(
-            modifier = Modifier.horizontalScroll(rememberScrollState()),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            NoteColor.entries.forEach {
-                SelectNoteColorItem(color = it, selected, onSelectedChange)
-            }
-
-            Button(
-                onClick = onSelectionButtonClick,
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = colors.secondary,
-                    contentColor = colors.onSecondary
-                ),
-                content = selectionButtonIcon
-            )
-        }
-    }
-}
-
-@Composable
-private fun SelectNoteColorItem(
-    color: NoteColor,
-    selected: NoteColor,
-    onSelectedChange: (NoteColor) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val colors = LocalColorScheme.current
-
-    Button(
-        modifier = modifier.size(40.dp),
-        onClick = { onSelectedChange(color) },
-        shape = RoundedCornerShape(16.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = color.value,
-            contentColor = colors.onSurface
-        ),
-        contentPadding = PaddingValues(0.dp)
-    ) {
-        if (selected == color) {
-            Icon(painter = painterResource(R.drawable.check), contentDescription = null)
-        }
     }
 }

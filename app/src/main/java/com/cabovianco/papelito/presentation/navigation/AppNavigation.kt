@@ -5,13 +5,11 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -48,7 +46,7 @@ fun AppNavigation(
             MainScreen(
                 viewmodel,
                 navController,
-                modifier = screenModifier.padding(start = 16.dp, top = 16.dp, end = 16.dp)
+                modifier = screenModifier
             )
         }
 
@@ -58,7 +56,7 @@ fun AppNavigation(
             AddNoteScreen(
                 viewmodel,
                 navController,
-                modifier = screenModifier.padding(16.dp)
+                modifier = screenModifier
             )
         }
 
@@ -75,7 +73,7 @@ fun AppNavigation(
             EditNoteScreen(
                 viewmodel,
                 navController,
-                modifier = screenModifier.padding(16.dp)
+                modifier = screenModifier
             )
         }
     }

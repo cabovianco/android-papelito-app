@@ -2,8 +2,8 @@ package com.cabovianco.papelito.presentation.ui.screen.shared
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -17,7 +17,7 @@ import com.cabovianco.papelito.presentation.ui.theme.LocalColorScheme
 fun ConfirmButton(title: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val colors = LocalColorScheme.current
 
-    TextButton(
+    Button(
         title,
         containerColor = colors.primary,
         contentColor = colors.onPrimary,
@@ -30,7 +30,7 @@ fun ConfirmButton(title: String, onClick: () -> Unit, modifier: Modifier = Modif
 fun CancelButton(title: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val colors = LocalColorScheme.current
 
-    TextButton(
+    Button(
         title,
         containerColor = colors.secondary,
         contentColor = colors.onSecondary,
@@ -40,18 +40,18 @@ fun CancelButton(title: String, onClick: () -> Unit, modifier: Modifier = Modifi
 }
 
 @Composable
-private fun TextButton(
+private fun Button(
     title: String,
     containerColor: Color,
     contentColor: Color,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Button(
+    ElevatedButton(
         modifier = modifier.fillMaxWidth(),
         onClick = onClick,
         shape = RoundedCornerShape(16.dp),
-        colors = ButtonDefaults.buttonColors(
+        colors = ButtonDefaults.elevatedButtonColors(
             containerColor = containerColor,
             contentColor = contentColor
         )

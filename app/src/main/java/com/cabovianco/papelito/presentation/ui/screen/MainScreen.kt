@@ -17,13 +17,13 @@ import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ModalBottomSheet
@@ -35,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -87,7 +88,7 @@ private fun MainContainer(
     Column(
         modifier = modifier.fillMaxWidth()
     ) {
-        AppBar(modifier = Modifier.padding(bottom = 16.dp))
+        AppBar(modifier = Modifier.padding(vertical = 16.dp))
         MainContent(uiState, onEditNoteClick, onDeleteNoteClick)
     }
 }
@@ -117,7 +118,12 @@ private fun MainContent(
     Column(modifier = modifier) {
         when (uiState) {
             is MainUiState.Success -> {
-                NotesContainer(uiState, onEditNoteClick, onDeleteNoteClick)
+                NotesContainer(
+                    uiState,
+                    onEditNoteClick,
+                    onDeleteNoteClick,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
             }
 
             is MainUiState.Loading -> {
@@ -131,11 +137,13 @@ private fun MainContent(
 private fun NotesContainer(
     uiState: MainUiState.Success,
     onEditNoteClick: (Note) -> Unit,
-    onDeleteNoteClick: (Note) -> Unit
+    onDeleteNoteClick: (Note) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     var clickedNote by remember { mutableStateOf<Note?>(null) }
 
     NotesGrid(
+        modifier = modifier,
         notes = uiState.notes,
         onNoteClicked = { clickedNote = it },
     )
@@ -143,7 +151,6 @@ private fun NotesContainer(
     clickedNote?.let { note ->
         NoteDialog(
             note,
-            onDismissRequest = { clickedNote = null },
             onEditNoteClick = {
                 onEditNoteClick(note)
                 clickedNote = null
@@ -151,7 +158,8 @@ private fun NotesContainer(
             onDeleteNoteClick = {
                 onDeleteNoteClick(note)
                 clickedNote = null
-            }
+            },
+            onDismissRequest = { clickedNote = null }
         )
     }
 }
@@ -204,22 +212,26 @@ private fun NoteContent(note: Note, modifier: Modifier = Modifier) {
 @Composable
 private fun NoteDialog(
     note: Note,
-    onDismissRequest: () -> Unit,
     onEditNoteClick: () -> Unit,
     onDeleteNoteClick: () -> Unit,
+    onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val size = 288.dp
+
     Dialog(onDismissRequest = onDismissRequest) {
         Column(modifier = modifier) {
             ElevatedCard(
-                modifier = Modifier.size(width = 256.dp, height = 288.dp),
+                modifier = Modifier.size(size),
                 shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(containerColor = note.backgroundColor.value)
             ) {
                 NoteContent(note, modifier = Modifier.verticalScroll(rememberScrollState()))
             }
 
-            NoteDialogActions(onEditNoteClick, onDeleteNoteClick)
+            Box(modifier = Modifier.width(size)) {
+                NoteDialogActions(onEditNoteClick, onDeleteNoteClick, modifier = Modifier)
+            }
         }
     }
 }
@@ -234,14 +246,13 @@ private fun NoteDialogActions(
 
     Row(
         modifier = modifier
-            .width(256.dp)
+            .fillMaxWidth()
             .padding(vertical = 8.dp),
-        horizontalArrangement = Arrangement.End
+        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
     ) {
-        NoteDialogButton(modifier = Modifier.padding(end = 8.dp), onClick = onEditNoteClick) {
+        NoteDialogButton(onClick = onEditNoteClick) {
             Icon(painter = painterResource(R.drawable.edit), contentDescription = null)
         }
-
 
         NoteDialogButton(onClick = { deleteButtonClicked = true }) {
             Icon(painter = painterResource(R.drawable.delete), contentDescription = null)
@@ -266,17 +277,25 @@ private fun NoteDialogButton(
     content: @Composable () -> Unit
 ) {
     val colors = LocalColorScheme.current
+    val shape = RoundedCornerShape(16.dp)
 
-    FilledIconButton(
-        modifier = modifier.size(48.dp),
+    FilledTonalIconButton(
+        modifier = modifier
+            .size(48.dp)
+            .shadow(
+                elevation = 1.dp,
+                shape = shape,
+                clip = false
+            ),
         onClick = onClick,
+        shape = shape,
         colors = IconButtonDefaults.iconButtonColors(
             containerColor = colors.primary,
             contentColor = colors.onPrimary
-        ),
-        shape = RoundedCornerShape(16.dp),
-        content = content
-    )
+        )
+    ) {
+        content()
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -312,12 +331,12 @@ private fun DeleteNoteBottomSheet(
 private fun DeleteNoteBottomSheetInfo(modifier: Modifier = Modifier) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text(
-            text = stringResource(R.string.delete_note_bottom_sheet_title),
+            text = stringResource(R.string.delete_note_title),
             fontSize = 26.sp,
             fontWeight = FontWeight.Bold
         )
 
-        Text(text = stringResource(R.string.delete_note_bottom_sheet_description))
+        Text(text = stringResource(R.string.delete_note_description))
     }
 }
 
@@ -329,13 +348,13 @@ private fun DeleteNoteBottomSheetActions(
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(16.dp)) {
         CancelButton(
-            title = stringResource(R.string.cancel_button),
+            title = stringResource(R.string.action_cancel),
             onClick = onDismissRequest,
             modifier = Modifier.height(60.dp)
         )
 
         ConfirmButton(
-            title = stringResource(R.string.continue_button),
+            title = stringResource(R.string.action_continue),
             onClick = onAcceptRequest,
             modifier = Modifier.height(60.dp)
         )
@@ -355,11 +374,11 @@ private fun LoadingContainer(modifier: Modifier = Modifier) {
 private fun AddNoteButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
     val colors = LocalColorScheme.current
 
-    Button(
+    ElevatedButton(
         modifier = modifier.size(96.dp, 48.dp),
         onClick = onClick,
         shape = RoundedCornerShape(18.dp),
-        colors = ButtonDefaults.buttonColors(
+        colors = ButtonDefaults.elevatedButtonColors(
             containerColor = colors.primary,
             contentColor = colors.onPrimary
         )
