@@ -18,9 +18,10 @@ interface NoteDao {
 
     @Query(
         """
-        SELECT notes.id, notes.text, notes.backgroundColor, notes.fontColor
+        SELECT notes.*
         FROM notes
-        INNER JOIN notes_tags ON (notes.id = notes_tags.noteId AND notes_tags.tagId = :id)
+        INNER JOIN notes_tags ON notes.id = notes_tags.noteId
+        WHERE notes_tags.tagId = :id
     """
     )
     fun getByTagId(id: Long): Flow<List<NoteEntity>>

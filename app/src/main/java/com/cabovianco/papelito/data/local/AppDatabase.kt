@@ -4,14 +4,30 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.cabovianco.papelito.data.local.converter.NoteColorConverter
+import com.cabovianco.papelito.data.local.converter.NoteFontFamilyConverter
+import com.cabovianco.papelito.data.local.converter.NoteFontWeightConverter
 import com.cabovianco.papelito.data.local.dao.NoteDao
 import com.cabovianco.papelito.data.local.dao.TagDao
 import com.cabovianco.papelito.data.local.entity.NoteEntity
 import com.cabovianco.papelito.data.local.entity.NoteTagEntity
 import com.cabovianco.papelito.data.local.entity.TagEntity
 
-@Database(entities = [NoteEntity::class, TagEntity::class, NoteTagEntity::class], version = 1)
-@TypeConverters(NoteColorConverter::class)
+@Database(
+    entities = [
+        NoteEntity::class,
+        TagEntity::class,
+        NoteTagEntity::class
+    ],
+    version = 2,
+    exportSchema = false
+)
+@TypeConverters(
+    value = [
+        NoteColorConverter::class,
+        NoteFontWeightConverter::class,
+        NoteFontFamilyConverter::class
+    ]
+)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun provideNoteDao(): NoteDao
     abstract fun provideTagDao(): TagDao

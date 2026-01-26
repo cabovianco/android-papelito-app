@@ -9,5 +9,7 @@ class NoteColorConverter {
     fun fromNoteColor(value: NoteColor): String = value.name
 
     @TypeConverter
-    fun toNoteColor(value: String): NoteColor = NoteColor.valueOf(value)
+    fun toNoteColor(name: String): NoteColor =
+        NoteColor.entries.firstOrNull { it.name == name }
+            ?: NoteColor.WHITE
 }

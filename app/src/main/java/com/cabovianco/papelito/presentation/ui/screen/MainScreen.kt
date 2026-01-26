@@ -5,11 +5,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -23,9 +25,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -203,7 +203,9 @@ private fun NoteContent(note: Note, modifier: Modifier = Modifier) {
                 .fillMaxWidth()
                 .padding(16.dp),
             text = note.text,
-            fontSize = 15.sp,
+            fontSize = note.fontSize.sp,
+            fontWeight = note.fontWeight.value,
+            fontFamily = note.fontFamily.value,
             color = note.fontColor.value
         )
     }
@@ -251,11 +253,11 @@ private fun NoteDialogActions(
         horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
     ) {
         NoteDialogButton(onClick = onEditNoteClick) {
-            Icon(painter = painterResource(R.drawable.edit), contentDescription = null)
+            Icon(painter = painterResource(R.drawable.edit_button), contentDescription = null)
         }
 
         NoteDialogButton(onClick = { deleteButtonClicked = true }) {
-            Icon(painter = painterResource(R.drawable.delete), contentDescription = null)
+            Icon(painter = painterResource(R.drawable.delete_button), contentDescription = null)
         }
     }
 
@@ -279,7 +281,7 @@ private fun NoteDialogButton(
     val colors = LocalColorScheme.current
     val shape = RoundedCornerShape(16.dp)
 
-    FilledTonalIconButton(
+    ElevatedButton(
         modifier = modifier
             .size(48.dp)
             .shadow(
@@ -289,10 +291,11 @@ private fun NoteDialogButton(
             ),
         onClick = onClick,
         shape = shape,
-        colors = IconButtonDefaults.iconButtonColors(
+        colors = ButtonDefaults.elevatedButtonColors(
             containerColor = colors.primary,
             contentColor = colors.onPrimary
-        )
+        ),
+        contentPadding = PaddingValues(0.dp)
     ) {
         content()
     }
@@ -308,17 +311,20 @@ private fun DeleteNoteBottomSheet(
     val colors = LocalColorScheme.current
 
     ModalBottomSheet(
-        modifier = modifier.padding(16.dp),
+        modifier = modifier
+            .systemBarsPadding()
+            .padding(16.dp),
         onDismissRequest = onDismissRequest,
         shape = RoundedCornerShape(24.dp),
         containerColor = colors.surface,
         contentColor = colors.onSurface,
-        dragHandle = null
+        dragHandle = null,
+        contentWindowInsets = { WindowInsets(bottom = 0.dp) }
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 16.dp, top = 16.dp, end = 16.dp),
+                .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             DeleteNoteBottomSheetInfo()
@@ -384,7 +390,7 @@ private fun AddNoteButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
         )
     ) {
         Icon(
-            painter = painterResource(R.drawable.add),
+            painter = painterResource(R.drawable.add_button),
             contentDescription = null,
             tint = colors.onPrimary
         )

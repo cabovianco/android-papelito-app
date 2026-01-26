@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cabovianco.papelito.domain.model.Note
 import com.cabovianco.papelito.domain.model.NoteColor
+import com.cabovianco.papelito.domain.model.NoteFontFamily
+import com.cabovianco.papelito.domain.model.NoteFontWeight
 import com.cabovianco.papelito.presentation.event.FormNoteUiEvent
 import com.cabovianco.papelito.presentation.state.FormNoteUiState
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -25,12 +27,26 @@ open class FormNoteViewModel : ViewModel() {
         mutableUiState.update { it.copy(noteText = text) }
     }
 
-    fun onNoteBackgroundColorUpdate(color: NoteColor) {
-        mutableUiState.update { it.copy(noteBackgroundColor = color) }
+    fun onNoteBackgroundColorUpdate(backgroundColor: NoteColor) {
+        mutableUiState.update { it.copy(noteBackgroundColor = backgroundColor) }
     }
 
-    fun onNoteFontColorUpdate(color: NoteColor) {
-        mutableUiState.update { it.copy(noteFontColor = color) }
+    fun onNoteFontColorUpdate(fontColor: NoteColor) {
+        mutableUiState.update { it.copy(noteFontColor = fontColor) }
+    }
+
+    fun onNoteFontSizeUpdate(fontSize: Float) {
+        if (fontSize <= 0f || fontSize > 99f) return
+
+        mutableUiState.update { it.copy(noteFontSize = fontSize) }
+    }
+
+    fun onNoteFontWeightUpdate(fontWeight: NoteFontWeight) {
+        mutableUiState.update { it.copy(noteFontWeight = fontWeight) }
+    }
+
+    fun onNoteFontFamilyUpdate(fontFamily: NoteFontFamily) {
+        mutableUiState.update { it.copy(noteFontFamily = fontFamily) }
     }
 
     protected fun createNote(): Result<Note> {
@@ -39,7 +55,7 @@ open class FormNoteViewModel : ViewModel() {
         }
 
         return Result.success(with(mutableUiState.value) {
-            Note(noteId, noteText, noteBackgroundColor, noteFontColor)
+            Note(noteId, noteText, noteBackgroundColor, noteFontColor, noteFontSize, noteFontWeight, noteFontFamily)
         })
     }
 

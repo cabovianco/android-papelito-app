@@ -3,6 +3,7 @@ package com.cabovianco.papelito.data.local.entity
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
+import androidx.room.Index
 
 @Entity(
     tableName = "notes_tags",
@@ -22,6 +23,10 @@ import androidx.room.ForeignKey.Companion.CASCADE
             onDelete = CASCADE,
             onUpdate = CASCADE
         )
+    ],
+    indices = [
+        Index("noteId"),
+        Index("tagId")
     ]
 )
 data class NoteTagEntity(

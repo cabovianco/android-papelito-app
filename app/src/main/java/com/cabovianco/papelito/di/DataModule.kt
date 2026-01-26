@@ -3,6 +3,7 @@ package com.cabovianco.papelito.di
 import android.content.Context
 import androidx.room.Room
 import com.cabovianco.papelito.data.local.AppDatabase
+import com.cabovianco.papelito.data.local.migration.MIGRATIONS
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,6 +20,7 @@ data object DataModule {
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context) = Room
         .databaseBuilder(context, AppDatabase::class.java, DATABASE_NAME)
+        .addMigrations(*MIGRATIONS)
         .build()
 
     @Provides

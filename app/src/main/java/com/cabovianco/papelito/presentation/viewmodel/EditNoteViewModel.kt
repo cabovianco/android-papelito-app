@@ -26,7 +26,10 @@ class EditNoteViewModel @Inject constructor(
                             noteId = id,
                             noteText = text,
                             noteBackgroundColor = backgroundColor,
-                            noteFontColor = fontColor
+                            noteFontColor = fontColor,
+                            noteFontSize = fontSize,
+                            noteFontWeight = fontWeight,
+                            noteFontFamily = fontFamily
                         )
                     }
                 }
