@@ -14,7 +14,7 @@ interface NoteDao {
     suspend fun insert(note: NoteEntity)
 
     @Query("SELECT * FROM notes WHERE notes.id = :id")
-    fun getById(id: Long): Flow<NoteEntity?>
+    fun observeById(id: Long): Flow<NoteEntity?>
 
     @Query(
         """
@@ -24,14 +24,15 @@ interface NoteDao {
         WHERE notes_tags.tagId = :id
     """
     )
-    fun getByTagId(id: Long): Flow<List<NoteEntity>>
+    fun observeByTagId(id: Long): Flow<List<NoteEntity>>
 
     @Query("SELECT * FROM notes")
-    fun getAll(): Flow<List<NoteEntity>>
+    fun observeAll(): Flow<List<NoteEntity>>
 
     @Update
-    suspend fun update(note: NoteEntity)
+    suspend fun update(note: NoteEntity): Int
 
     @Delete
-    suspend fun delete(note: NoteEntity)
+    suspend fun delete(note: NoteEntity): Int
 }
+

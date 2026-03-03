@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Papelito</string>
+    <string name="notes_list_empty_message">Escribe tu primer nota</string>
     <string name="action_cancel">Cancelar</string>
     <string name="action_continue">Continuar</string>
     <string name="action_save">Guardar</string>
     <string name="delete_note_title">Eliminar</string>
-    <string name="delete_note_description">¿Seguro que quieres eliminar esta nota? Esta acción no se puede deshacer.</string>
+    <string name="delete_note_description">¿Seguro que quieres eliminar esta nota? Esta acción no se puede deshacer</string>
+    <string name="note_hint">Escribe una nota…</string>
     <string name="color_selection_title">Color</string>
     <string name="font_color_label">Fuente</string>
     <string name="background_color_label">Fondo</string>
@@ -13,15 +15,7 @@
     <string name="font_size_label">Tamaño</string>
     <string name="font_weight_label">Grosor</string>
     <string name="font_family_label">Familia</string>
-    <string name="thin_font_weight_name">Fina</string>
-    <string name="extra_light_font_weight_name">Extra fina</string>
-    <string name="light_font_weight_name">Ligera</string>
-    <string name="normal_font_weight_name">Normal</string>
-    <string name="medium_font_weight_name">Media</string>
-    <string name="semi_bold_font_weight_name">Semi-negrita</string>
-    <string name="bold_font_weight_name">Negrita</string>
-    <string name="serif_font_family_name">Serif</string>
-    <string name="sans_serif_font_family_name">Sans serif</string>
-    <string name="monospace_font_family_name">Monoespaciada</string>
-    <string name="cursive_font_family_name">Cursiva</string>
+    <string name="load_error_message">No pudimos cargar tus notas</string>
+    <string name="save_error_message">No pudimos guardar los cambios</string>
+    <string name="empty_note_error_message">No se puede guardar una nota vacía</string>
 </resources>

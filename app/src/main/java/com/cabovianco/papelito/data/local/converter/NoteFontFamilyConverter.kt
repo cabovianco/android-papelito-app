@@ -1,7 +1,7 @@
 package com.cabovianco.papelito.data.local.converter
 
 import androidx.room.TypeConverter
-import com.cabovianco.papelito.domain.model.NoteFontFamily
+import com.cabovianco.papelito.domain.model.note.NoteFontFamily
 
 class NoteFontFamilyConverter {
     @TypeConverter

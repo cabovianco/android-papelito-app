@@ -1,15 +1,14 @@
 package com.cabovianco.papelito.presentation.state
 
-import com.cabovianco.papelito.domain.model.NoteColor
-import com.cabovianco.papelito.domain.model.NoteFontFamily
-import com.cabovianco.papelito.domain.model.NoteFontWeight
+import com.cabovianco.papelito.domain.model.note.NoteColor
+import com.cabovianco.papelito.domain.model.note.NoteFontFamily
+import com.cabovianco.papelito.domain.model.note.NoteFontWeight
 
 data class FormNoteUiState(
-    val noteId: Long = 0,
-    val noteText: String = "",
-    val noteBackgroundColor: NoteColor = NoteColor.WHITE,
-    val noteFontColor: NoteColor = NoteColor.BLACK,
-    val noteFontSize: Float = 16F,
-    val noteFontWeight: NoteFontWeight = NoteFontWeight.NORMAL,
-    val noteFontFamily: NoteFontFamily = NoteFontFamily.SANS_SERIF
+    val text: String = "",
+    val backgroundColor: NoteColor = NoteColor.WHITE,
+    val fontColor: NoteColor = NoteColor.BLACK,
+    val fontSize: Float = 16F,
+    val fontWeight: NoteFontWeight = NoteFontWeight.NORMAL,
+    val fontFamily: NoteFontFamily = NoteFontFamily.SANS_SERIF
 )

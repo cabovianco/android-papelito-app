@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.sp
 import com.cabovianco.papelito.presentation.ui.theme.LocalColorScheme
 
 @Composable
-fun ConfirmButton(title: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun PrimaryButton(title: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val colors = LocalColorScheme.current
 
     Button(
@@ -27,7 +27,7 @@ fun ConfirmButton(title: String, onClick: () -> Unit, modifier: Modifier = Modif
 }
 
 @Composable
-fun CancelButton(title: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun SecondaryButton(title: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val colors = LocalColorScheme.current
 
     Button(

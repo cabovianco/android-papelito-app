@@ -1,12 +1,7 @@
 package com.cabovianco.papelito.presentation.navigation
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.add
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -17,10 +12,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.cabovianco.papelito.presentation.ui.screen.AddNoteScreen
-import com.cabovianco.papelito.presentation.ui.screen.EditNoteScreen
+import com.cabovianco.papelito.presentation.ui.screen.FormScreen
 import com.cabovianco.papelito.presentation.ui.screen.MainScreen
-import com.cabovianco.papelito.presentation.ui.theme.LocalColorScheme
 import com.cabovianco.papelito.presentation.viewmodel.AddNoteViewModel
 import com.cabovianco.papelito.presentation.viewmodel.EditNoteViewModel
 import com.cabovianco.papelito.presentation.viewmodel.MainViewModel
@@ -30,50 +23,58 @@ fun AppNavigation(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController()
 ) {
-    val colors = LocalColorScheme.current
-    val screenModifier = Modifier
-        .fillMaxSize()
-        .windowInsetsPadding(WindowInsets.navigationBars.add(WindowInsets.statusBars))
-
     NavHost(
-        modifier = modifier.background(color = colors.background),
+        modifier = modifier,
         navController = navController,
         startDestination = Screen.MainScreen.route
     ) {
-        composable(route = Screen.MainScreen.route) {
-            val viewmodel = hiltViewModel<MainViewModel>()
+        composable(
+            route = Screen.MainScreen.route,
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
+        ) {
+            val viewModel = hiltViewModel<MainViewModel>()
 
             MainScreen(
-                viewmodel,
-                navController,
-                modifier = screenModifier
+                viewModel,
+                onAddButtonClick = { navController.navigate(Screen.AddNoteScreen.route) },
+                onEditNoteClick = { navController.navigate(Screen.EditNoteScreen.navTo(it)) },
+                onDeleteNoteClick = { viewModel.deleteNote(it) }
             )
         }
 
-        composable(route = Screen.AddNoteScreen.route) {
-            val viewmodel = hiltViewModel<AddNoteViewModel>()
+        composable(
+            route = Screen.AddNoteScreen.route,
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
+        ) {
+            val viewModel = hiltViewModel<AddNoteViewModel>()
 
-            AddNoteScreen(
-                viewmodel,
-                navController,
-                modifier = screenModifier
+            FormScreen(
+                viewModel,
+                onSaveButtonClick = { viewModel.addNote() },
+                onCancelButtonClick = { navController.navigateUp() },
+                onSaveEvent = { navController.navigateUp() }
             )
         }
 
         composable(
             Screen.EditNoteScreen.route,
-            arguments = listOf(navArgument("id") { type = NavType.LongType })
+            arguments = listOf(navArgument("id") { type = NavType.LongType }),
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getLong("id") ?: -1
 
-            val viewmodel: EditNoteViewModel = hiltViewModel()
+            val viewModel = hiltViewModel<EditNoteViewModel>()
 
-            LaunchedEffect(Unit) { viewmodel.editNoteById(id) }
+            LaunchedEffect(Unit) { viewModel.loadNoteById(id) }
 
-            EditNoteScreen(
-                viewmodel,
-                navController,
-                modifier = screenModifier
+            FormScreen(
+                viewModel,
+                onSaveButtonClick = { viewModel.editNote() },
+                onCancelButtonClick = { navController.navigateUp() },
+                onSaveEvent = { navController.navigateUp() }
             )
         }
     }

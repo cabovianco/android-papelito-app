@@ -1,10 +1,12 @@
 <resources>
     <string name="app_name">Papelito</string>
+    <string name="notes_list_empty_message">Write your first note</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_continue">Continue</string>
     <string name="action_save">Save</string>
     <string name="delete_note_title">Delete</string>
-    <string name="delete_note_description">Are you sure you want to delete this note? This action cannot be undone.</string>
+    <string name="delete_note_description">Are you sure you want to delete this note? This action cannot be undone</string>
+    <string name="note_hint">Write a note…</string>
     <string name="color_selection_title">Color</string>
     <string name="font_color_label">Font</string>
     <string name="background_color_label">Background</string>
@@ -12,15 +14,7 @@
     <string name="font_size_label">Size</string>
     <string name="font_weight_label">Weight</string>
     <string name="font_family_label">Family</string>
-    <string name="thin_font_weight_name">Thin</string>
-    <string name="extra_light_font_weight_name">Extra Light</string>
-    <string name="light_font_weight_name">Light</string>
-    <string name="normal_font_weight_name">Normal</string>
-    <string name="medium_font_weight_name">Medium</string>
-    <string name="semi_bold_font_weight_name">Semi Bold</string>
-    <string name="bold_font_weight_name">Bold</string>
-    <string name="serif_font_family_name">Serif</string>
-    <string name="sans_serif_font_family_name">Sans Serif</string>
-    <string name="monospace_font_family_name">Monospace</string>
-    <string name="cursive_font_family_name">Cursive</string>
+    <string name="load_error_message">We couldn’t load your notes</string>
+    <string name="save_error_message">Unable to save changes</string>
+    <string name="empty_note_error_message">Cannot save an empty note</string>
 </resources>

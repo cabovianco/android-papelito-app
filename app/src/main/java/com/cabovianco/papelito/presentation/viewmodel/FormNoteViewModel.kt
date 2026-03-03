@@ -2,10 +2,16 @@ package com.cabovianco.papelito.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cabovianco.papelito.domain.model.Note
-import com.cabovianco.papelito.domain.model.NoteColor
-import com.cabovianco.papelito.domain.model.NoteFontFamily
-import com.cabovianco.papelito.domain.model.NoteFontWeight
+import com.cabovianco.papelito.domain.model.AppError
+import com.cabovianco.papelito.domain.model.Result
+import com.cabovianco.papelito.domain.model.err
+import com.cabovianco.papelito.domain.model.note.Note
+import com.cabovianco.papelito.domain.model.note.NoteColor
+import com.cabovianco.papelito.domain.model.note.NoteFontFamily
+import com.cabovianco.papelito.domain.model.note.NoteFontWeight
+import com.cabovianco.papelito.domain.model.ok
+import com.cabovianco.papelito.domain.model.onErr
+import com.cabovianco.papelito.domain.model.onOk
 import com.cabovianco.papelito.presentation.event.FormNoteUiEvent
 import com.cabovianco.papelito.presentation.state.FormNoteUiState
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -24,50 +30,57 @@ open class FormNoteViewModel : ViewModel() {
     val uiEvent get() = mutableUiEvent.asSharedFlow()
 
     fun onNoteTextUpdate(text: String) {
-        mutableUiState.update { it.copy(noteText = text) }
+        mutableUiState.update { it.copy(text = text) }
     }
 
     fun onNoteBackgroundColorUpdate(backgroundColor: NoteColor) {
-        mutableUiState.update { it.copy(noteBackgroundColor = backgroundColor) }
+        mutableUiState.update { it.copy(backgroundColor = backgroundColor) }
     }
 
     fun onNoteFontColorUpdate(fontColor: NoteColor) {
-        mutableUiState.update { it.copy(noteFontColor = fontColor) }
+        mutableUiState.update { it.copy(fontColor = fontColor) }
     }
 
     fun onNoteFontSizeUpdate(fontSize: Float) {
         if (fontSize <= 0f || fontSize > 99f) return
 
-        mutableUiState.update { it.copy(noteFontSize = fontSize) }
+        mutableUiState.update { it.copy(fontSize = fontSize) }
     }
 
     fun onNoteFontWeightUpdate(fontWeight: NoteFontWeight) {
-        mutableUiState.update { it.copy(noteFontWeight = fontWeight) }
+        mutableUiState.update { it.copy(fontWeight = fontWeight) }
     }
 
     fun onNoteFontFamilyUpdate(fontFamily: NoteFontFamily) {
-        mutableUiState.update { it.copy(noteFontFamily = fontFamily) }
+        mutableUiState.update { it.copy(fontFamily = fontFamily) }
     }
 
-    protected fun createNote(): Result<Note> {
-        if (mutableUiState.value.noteText.isBlank()) {
-            return Result.failure(Throwable("Invalid note parameters."))
+    private fun createNote(): Result<Note> {
+        if (mutableUiState.value.text.isBlank()) {
+            return err(AppError.InvalidNoteParametersError)
         }
 
-        return Result.success(with(mutableUiState.value) {
-            Note(noteId, noteText, noteBackgroundColor, noteFontColor, noteFontSize, noteFontWeight, noteFontFamily)
+        return ok(with(mutableUiState.value) {
+            Note(
+                text = text,
+                backgroundColor = backgroundColor,
+                fontColor = fontColor,
+                fontSize = fontSize,
+                fontWeight = fontWeight,
+                fontFamily = fontFamily
+            )
         })
     }
 
     protected fun saveNote(saveNoteUseCase: suspend (Note) -> Result<Unit>) {
         viewModelScope.launch {
             createNote()
-                .onSuccess { note ->
+                .onOk { note ->
                     saveNoteUseCase(note)
-                        .onSuccess { mutableUiEvent.emit(FormNoteUiEvent.Saved) }
-                        .onFailure { mutableUiEvent.emit(FormNoteUiEvent.Error(it.message)) }
+                        .onOk { mutableUiEvent.emit(FormNoteUiEvent.Saved) }
+                        .onErr { mutableUiEvent.emit(FormNoteUiEvent.Error(it)) }
                 }
-                .onFailure { mutableUiEvent.emit(FormNoteUiEvent.Error(it.message)) }
+                .onErr { mutableUiEvent.emit(FormNoteUiEvent.Error(it)) }
         }
     }
 }

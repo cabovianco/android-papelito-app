@@ -8,7 +8,7 @@ import jakarta.inject.Inject
 class AddNoteViewModel @Inject constructor(
     private val addNoteUseCase: AddNoteUseCase
 ) : FormNoteViewModel() {
-    fun onSaveButtonClick() {
+    fun addNote() {
         super.saveNote { addNoteUseCase(it) }
     }
 }

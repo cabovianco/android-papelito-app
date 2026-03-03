@@ -7,7 +7,7 @@ import com.cabovianco.papelito.domain.model.Tag
 @Entity(tableName = "tags")
 data class TagEntity(
     @PrimaryKey(autoGenerate = true)
-    val id: Long,
+    val id: Long = 0L,
     val name: String
 )
 
