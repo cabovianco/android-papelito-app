@@ -2,7 +2,7 @@
 
 Papelito is a customizable, offline note-taking app designed to make every note feel unique.
 
-Create notes for ideas, tasks, thoughts, or reminders — and personalize them with custom colors, fonts, and styles. No accounts, no cloud, no distractions.
+Create notes for ideas, tasks, or thoughts — and personalize them with custom colors, fonts, and styles. No accounts, no cloud, no distractions.
 
 All your notes stay on your device, giving you full control while letting your creativity stand out.
 
