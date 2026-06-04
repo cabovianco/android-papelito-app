@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">Papelito</string>
-    <string name="notes_list_empty_message">Write your first note</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_continue">Continue</string>
     <string name="action_save">Save</string>
@@ -13,6 +12,8 @@
     <string name="font_selection_title">Font</string>
     <string name="font_size_label">Size</string>
     <string name="font_weight_label">Weight</string>
+    <string name="font_weight_regular">Regular</string>
+    <string name="font_weight_bold">Bold</string>
     <string name="font_family_label">Family</string>
     <string name="load_error_message">We couldn’t load your notes</string>
     <string name="save_error_message">Unable to save changes</string>

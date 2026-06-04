@@ -1,23 +1,11 @@
 package com.cabovianco.papelito.presentation.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.graphics.Color
 
-data class ColorScheme(
-    val background: Color,
-    val onBackground: Color,
-    val surface: Color,
-    val onSurface: Color,
-    val primary: Color,
-    val onPrimary: Color,
-    val secondary: Color,
-    val onSecondary: Color
-)
 
-private val lightColorScheme = ColorScheme(
+val ColorScheme = lightColorScheme(
     background = lightBackground,
     onBackground = lightOnBackground,
     surface = lightSurface,
@@ -28,16 +16,13 @@ private val lightColorScheme = ColorScheme(
     onSecondary = lightOnSecondary
 )
 
-val LocalColorScheme = staticCompositionLocalOf { lightColorScheme }
-
 @Composable
 fun PapelitoTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) lightColorScheme else lightColorScheme
-    CompositionLocalProvider(
-        value = LocalColorScheme provides colorScheme,
+    MaterialTheme(
+        colorScheme = ColorScheme,
+        typography = Typography,
         content = content
     )
 }

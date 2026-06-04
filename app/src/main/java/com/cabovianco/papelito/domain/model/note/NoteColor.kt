@@ -2,17 +2,24 @@ package com.cabovianco.papelito.domain.model.note
 
 import androidx.compose.ui.graphics.Color
 
-enum class NoteColor(val value: Color) {
-    WHITE(Color(0xFFf4f3f1)),
-    BLACK(Color(0xFF1f1f1f)),
-    LIGHT_BLUE(Color(0xFFb6cfe4)),
-    BLUE(Color(0xFF122c4f)),
-    LIGHT_GREEN(Color(0xFF9bad50)),
-    GREEN(Color(0xff0f2e15)),
-    YELLOW(Color(0xFFf5e08a)),
-    ORANGE(Color(0xFFc1440e)),
-    PINK(Color(0xFFf4c9d6)),
-    WINE(Color(0xFF5d0d18)),
-    LIGHT_BROWN(Color(0xFFa18c78)),
-    BROWN(Color(0xFF3e2723))
+enum class NoteColor(val color: Color) {
+    NEUTRAL_100(Color(0xFFF4F3F1)),
+    NEUTRAL_200(Color(0xFFE6E8E6)),
+    NEUTRAL_800(Color(0xFF1F1F1F)),
+    NEUTRAL_900(Color(0xFF060409)),
+
+    GREEN_200(Color(0xFF9BAD50)),
+    GREEN_600(Color(0xff556842)),
+    BLUE_200(Color(0xFF849DBB)),
+    BLUE_700(Color(0xFF122C4F)),
+
+    YELLOW_200(Color(0xFFF5E08A)),
+    ORANGE_600(Color(0xFFC1440E)),
+    RED_500(Color(0xFF9E2A2B)),
+    RED_900(Color(0xFF5D0D18)),
+
+    PINK_200(Color(0xFFF4C9D6)),
+    PURPLE_600(Color(0xFF51375B)),
+    BROWN_400(Color(0xFF766153)),
+    BROWN_800(Color(0xFF432818))
 }

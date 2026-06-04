@@ -10,5 +10,5 @@ class NoteFontWeightConverter {
     @TypeConverter
     fun toNoteFontWeight(name: String): NoteFontWeight =
         NoteFontWeight.entries.firstOrNull { it.name == name }
-            ?: NoteFontWeight.NORMAL
+            ?: NoteFontWeight.REGULAR
 }

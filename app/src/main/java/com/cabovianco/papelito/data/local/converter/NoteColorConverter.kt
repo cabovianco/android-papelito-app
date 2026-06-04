@@ -11,5 +11,5 @@ class NoteColorConverter {
     @TypeConverter
     fun toNoteColor(name: String): NoteColor =
         NoteColor.entries.firstOrNull { it.name == name }
-            ?: NoteColor.WHITE
+            ?: NoteColor.NEUTRAL_100
 }

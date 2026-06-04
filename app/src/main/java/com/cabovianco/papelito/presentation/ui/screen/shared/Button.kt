@@ -4,23 +4,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.cabovianco.papelito.presentation.ui.theme.LocalColorScheme
 
 @Composable
 fun PrimaryButton(title: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val colors = LocalColorScheme.current
-
     Button(
         title,
-        containerColor = colors.primary,
-        contentColor = colors.onPrimary,
+        containerColor = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary,
         onClick,
         modifier
     )
@@ -28,12 +25,10 @@ fun PrimaryButton(title: String, onClick: () -> Unit, modifier: Modifier = Modif
 
 @Composable
 fun SecondaryButton(title: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val colors = LocalColorScheme.current
-
     Button(
         title,
-        containerColor = colors.secondary,
-        contentColor = colors.onSecondary,
+        containerColor = MaterialTheme.colorScheme.secondary,
+        contentColor = MaterialTheme.colorScheme.onSecondary,
         onClick,
         modifier
     )
@@ -59,7 +54,7 @@ private fun Button(
         Text(
             text = title,
             color = contentColor,
-            fontSize = 18.sp,
+            style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Bold
         )
     }

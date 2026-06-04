@@ -10,5 +10,5 @@ class NoteFontFamilyConverter {
     @TypeConverter
     fun toNoteFontFamily(name: String): NoteFontFamily =
         NoteFontFamily.entries.firstOrNull { it.name == name }
-            ?: NoteFontFamily.SANS_SERIF
+            ?: NoteFontFamily.FREDOKA
 }

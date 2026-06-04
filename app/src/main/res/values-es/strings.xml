@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Papelito</string>
-    <string name="notes_list_empty_message">Escribe tu primer nota</string>
     <string name="action_cancel">Cancelar</string>
     <string name="action_continue">Continuar</string>
     <string name="action_save">Guardar</string>
@@ -14,6 +13,8 @@
     <string name="font_selection_title">Fuente</string>
     <string name="font_size_label">Tamaño</string>
     <string name="font_weight_label">Grosor</string>
+    <string name="font_weight_regular">Normal</string>
+    <string name="font_weight_bold">Negrita</string>
     <string name="font_family_label">Familia</string>
     <string name="load_error_message">No pudimos cargar tus notas</string>
     <string name="save_error_message">No pudimos guardar los cambios</string>

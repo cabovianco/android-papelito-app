@@ -31,8 +31,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -66,7 +72,6 @@ import com.cabovianco.papelito.presentation.event.FormNoteUiEvent
 import com.cabovianco.papelito.presentation.state.FormNoteUiState
 import com.cabovianco.papelito.presentation.ui.screen.shared.PrimaryButton
 import com.cabovianco.papelito.presentation.ui.screen.shared.SecondaryButton
-import com.cabovianco.papelito.presentation.ui.theme.LocalColorScheme
 import com.cabovianco.papelito.presentation.viewmodel.FormNoteViewModel
 
 @Composable
@@ -89,10 +94,8 @@ fun FormScreen(
                 is FormNoteUiEvent.Saved -> onSaveEvent()
                 is FormNoteUiEvent.Error -> {
                     snackbarHostState.showSnackbar(
-                        when (event.error) {
-                            is AppError.InvalidNoteParametersError -> emptyNoteErrorMessage
-                            else -> saveErrorMessage
-                        }
+                        if (event.error is AppError.InvalidNoteParametersError) emptyNoteErrorMessage
+                        else saveErrorMessage
                     )
                 }
             }
@@ -100,17 +103,17 @@ fun FormScreen(
     }
 
     FormScreenContent(
-        uiState,
-        snackbarHostState,
-        onNoteTextChange = { viewModel.onNoteTextUpdate(it) },
-        onNoteBackgroundColorChange = { viewModel.onNoteBackgroundColorUpdate(it) },
-        onNoteFontColorChange = { viewModel.onNoteFontColorUpdate(it) },
-        onNoteFontSizeChange = { viewModel.onNoteFontSizeUpdate(it) },
-        onNoteFontWeightChange = { viewModel.onNoteFontWeightUpdate(it) },
-        onNoteFontFamilyChange = { viewModel.onNoteFontFamilyUpdate(it) },
-        onSaveButtonClick,
-        onCancelButtonClick,
-        modifier
+        uiState = uiState,
+        snackbarHostState = snackbarHostState,
+        onNoteTextChange = viewModel::onNoteTextUpdate,
+        onNoteBackgroundColorChange = viewModel::onNoteBackgroundColorUpdate,
+        onNoteFontColorChange = viewModel::onNoteFontColorUpdate,
+        onNoteFontSizeChange = viewModel::onNoteFontSizeUpdate,
+        onNoteFontWeightChange = viewModel::onNoteFontWeightUpdate,
+        onNoteFontFamilyChange = viewModel::onNoteFontFamilyUpdate,
+        onSaveButtonClick = onSaveButtonClick,
+        onCancelButtonClick = onCancelButtonClick,
+        modifier = modifier
     )
 }
 
@@ -128,8 +131,6 @@ fun FormScreenContent(
     onCancelButtonClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val colors = LocalColorScheme.current
-
     Scaffold(
         modifier = modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -143,19 +144,19 @@ fun FormScreenContent(
             )
         },
         floatingActionButtonPosition = FabPosition.Center,
-        containerColor = colors.background,
+        containerColor = MaterialTheme.colorScheme.background,
         contentColor = Color.Transparent
-    ) {
+    ) { paddingValues ->
         FormNoteContent(
-            uiState,
-            onNoteTextChange,
-            onNoteBackgroundColorChange,
-            onNoteFontColorChange,
-            onNoteFontSizeChange,
-            onNoteFontWeightChange,
-            onNoteFontFamilyChange,
+            uiState = uiState,
+            onNoteTextChange = onNoteTextChange,
+            onNoteBackgroundColorChange = onNoteBackgroundColorChange,
+            onNoteFontColorChange = onNoteFontColorChange,
+            onNoteFontSizeChange = onNoteFontSizeChange,
+            onNoteFontWeightChange = onNoteFontWeightChange,
+            onNoteFontFamilyChange = onNoteFontFamilyChange,
             modifier = Modifier
-                .padding(it)
+                .padding(paddingValues)
                 .padding(horizontal = 16.dp)
         )
     }
@@ -172,12 +173,12 @@ private fun FormActionButtons(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        val modifier = Modifier
+        val buttonModifier = Modifier
             .height(58.dp)
             .weight(0.5f)
 
         SecondaryButton(
-            modifier = modifier,
+            modifier = buttonModifier,
             title = stringResource(R.string.action_cancel),
             onClick = onCancelButtonClick
         )
@@ -185,7 +186,7 @@ private fun FormActionButtons(
         Spacer(modifier = Modifier.width(24.dp))
 
         PrimaryButton(
-            modifier = modifier,
+            modifier = buttonModifier,
             title = stringResource(R.string.action_save),
             onClick = onSaveButtonClick
         )
@@ -207,11 +208,11 @@ private fun FormNoteContent(
         NotePreviewSection(
             text = uiState.text,
             onTextChange = onNoteTextChange,
-            backgroundColor = uiState.backgroundColor.value,
-            fontColor = uiState.fontColor.value,
+            backgroundColor = uiState.backgroundColor.color,
+            fontColor = uiState.fontColor.color,
             fontSize = uiState.fontSize,
-            fontWeight = uiState.fontWeight.value,
-            fontFamily = uiState.fontFamily.value
+            fontWeight = uiState.fontWeight.fontWeight,
+            fontFamily = uiState.fontFamily.fontFamily
         )
 
         NotePropertiesEditor(
@@ -252,7 +253,7 @@ private fun NotePreviewSection(
     ) {
         EditableNoteCard(
             text = text,
-            onTextChange = { onTextChange(it) },
+            onTextChange = onTextChange,
             backgroundColor = backgroundColor,
             fontColor = fontColor,
             fontSize = fontSize,
@@ -286,17 +287,11 @@ private fun EditableNoteCard(
         colors = CardDefaults.elevatedCardColors(containerColor = backgroundColor)
     ) {
         TextField(
-            modifier = Modifier
-                .fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             value = text,
             onValueChange = onTextChange,
             textStyle = textStyle,
-            placeholder = {
-                Text(
-                    text = stringResource(R.string.note_hint),
-                    style = textStyle
-                )
-            },
+            placeholder = { Text(text = stringResource(R.string.note_hint), style = textStyle) },
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color.Transparent,
                 unfocusedContainerColor = Color.Transparent,
@@ -328,13 +323,7 @@ private fun NotePropertiesEditor(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        ColorPropertyEditor(
-            backgroundColor,
-            onBackgroundColorChange,
-            fontColor,
-            onFontColorChange
-        )
-
+        ColorPropertyEditor(backgroundColor, onBackgroundColorChange, fontColor, onFontColorChange)
         FontPropertyEditor(
             fontSize,
             onFontSizeChange,
@@ -363,34 +352,32 @@ private fun ColorPropertyEditor(
     NotePropertyMenu(
         title = stringResource(R.string.color_selection_title),
         items = listOf(
-            backgroundColorPropertyItem(
-                color = backgroundColor,
-                onColorChange = onBackgroundColorChange
+            PropertyItem(
+                label = stringResource(R.string.background_color_label),
+                preview = { ColorPreview(backgroundColor.color) },
+                editor = {
+                    ColorEditor(
+                        backgroundColor,
+                        onBackgroundColorChange,
+                        R.drawable.background_color_selector
+                    )
+                }
             ),
-            fontColorPropertyItem(
-                color = fontColor,
-                onColorChange = onFontColorChange
+            PropertyItem(
+                label = stringResource(R.string.font_color_label),
+                preview = { ColorPreview(fontColor.color) },
+                editor = {
+                    ColorEditor(
+                        fontColor,
+                        onFontColorChange,
+                        R.drawable.font_color_selector
+                    )
+                }
             )
         ),
-        modifier
+        modifier = modifier
     )
 }
-
-@Composable
-private fun backgroundColorPropertyItem(color: NoteColor, onColorChange: (NoteColor) -> Unit) =
-    PropertyItem(
-        label = stringResource(R.string.background_color_label),
-        preview = { ColorPreview(color.value) },
-        editor = { ColorEditor(color, onColorChange) }
-    )
-
-@Composable
-private fun fontColorPropertyItem(color: NoteColor, onColorChange: (NoteColor) -> Unit) =
-    PropertyItem(
-        label = stringResource(R.string.font_color_label),
-        preview = { ColorPreview(color.value) },
-        editor = { ColorEditor(color, onColorChange) }
-    )
 
 @Composable
 private fun ColorPreview(color: Color, modifier: Modifier = Modifier) {
@@ -405,20 +392,22 @@ private fun ColorPreview(color: Color, modifier: Modifier = Modifier) {
 private fun ColorEditor(
     color: NoteColor,
     onColorChange: (NoteColor) -> Unit,
+    @DrawableRes onSelectedIconId: Int,
     modifier: Modifier = Modifier
 ) {
     EditorOptionsGrid(
         options = NoteColor.entries,
-        optionContent = {
+        optionContent = { noteColor ->
             ColorEditorItem(
-                color = it.value,
-                onClick = { onColorChange(it) },
-                isSelected = it == color,
-                modifier = Modifier.size(50.dp)
+                color = noteColor.color,
+                onClick = { onColorChange(noteColor) },
+                isSelected = noteColor == color,
+                onSelectedIconId = onSelectedIconId,
+                modifier = Modifier.size(60.dp)
             )
         },
-        modifier,
-        columns = GridCells.FixedSize(50.dp)
+        modifier = modifier,
+        columns = GridCells.FixedSize(60.dp)
     )
 }
 
@@ -427,6 +416,7 @@ private fun ColorEditorItem(
     color: Color,
     onClick: () -> Unit,
     isSelected: Boolean,
+    @DrawableRes onSelectedIconId: Int,
     modifier: Modifier = Modifier
 ) {
     ElevatedButton(
@@ -435,15 +425,12 @@ private fun ColorEditorItem(
         shape = RoundedCornerShape(16.dp),
         colors = ButtonDefaults.elevatedButtonColors(
             containerColor = color,
-            contentColor = if (color.luminance() > 0.5f) Color.Black else Color.White
+            contentColor = if (color.luminance() > 0.5f) NoteColor.NEUTRAL_900.color else NoteColor.NEUTRAL_100.color
         ),
         contentPadding = PaddingValues(0.dp)
     ) {
         if (isSelected) {
-            Icon(
-                painter = painterResource(R.drawable.color_selector),
-                contentDescription = null
-            )
+            Icon(painter = painterResource(onSelectedIconId), contentDescription = null)
         }
     }
 }
@@ -461,175 +448,171 @@ private fun FontPropertyEditor(
     NotePropertyMenu(
         title = stringResource(R.string.font_selection_title),
         items = listOf(
-            fontSizePropertyItem(fontSize, onFontSizeChange),
-            fontWeightPropertyItem(fontWeight, onFontWeightChange),
-            fontFamilyPropertyItem(fontFamily, onFontFamilyChange)
+            PropertyItem(
+                label = stringResource(R.string.font_size_label),
+                preview = { FontPreview("${fontSize.toInt()}") },
+                editor = { FontSizeEditor(fontSize, onFontSizeChange, Modifier.height(256.dp)) }
+            ),
+            PropertyItem(
+                label = stringResource(R.string.font_weight_label),
+                preview = { FontPreview(label = "Aa", fontWeight = fontWeight.fontWeight) },
+                editor = {
+                    FontWeightEditor(
+                        fontWeight,
+                        onFontWeightChange,
+                        Modifier.height(256.dp)
+                    )
+                }
+            ),
+            PropertyItem(
+                label = stringResource(R.string.font_family_label),
+                preview = { FontPreview(label = "Aa", fontFamily = fontFamily.fontFamily) },
+                editor = {
+                    FontFamilyEditor(
+                        fontFamily,
+                        onFontFamilyChange,
+                        Modifier.height(256.dp)
+                    )
+                }
+            )
         ),
-        modifier
+        modifier = modifier
     )
 }
-
-@Composable
-private fun fontSizePropertyItem(fontSize: Float, onFontSizeChange: (Float) -> Unit) =
-    PropertyItem(
-        label = stringResource(R.string.font_size_label),
-        preview = { FontPreview("${fontSize.toInt()}") },
-        editor = {
-            FontSizeEditor(
-                fontSize,
-                onFontSizeChange,
-                modifier = Modifier.height(256.dp)
-            )
-        }
-    )
 
 @Composable
 private fun FontPreview(
     label: String,
     modifier: Modifier = Modifier,
+    fontSize: Float = 16f,
     fontWeight: FontWeight = FontWeight.Medium,
-    fontFamily: FontFamily? = null
+    fontFamily: FontFamily = FontFamily.Default
 ) {
-    Box(modifier) {
-        Text(text = label, fontSize = 16.sp, fontWeight = fontWeight, fontFamily = fontFamily)
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = label,
+            fontSize = fontSize.sp,
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = fontWeight,
+            fontFamily = fontFamily,
+            maxLines = 1,
+            style = MaterialTheme.typography.bodyLarge
+        )
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun FontSizeEditor(
+fun FontSizeEditor(
     fontSize: Float,
     onFontSizeChange: (Float) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
+    Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(32.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(horizontal = 24.dp, vertical = 32.dp),
+        verticalArrangement = Arrangement.spacedBy(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        FontSizeEditorButton(
-            iconId = R.drawable.decrease_font_size_button,
-            onClick = { onFontSizeChange(fontSize - 1f) }
+        FontPreview(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(80.dp),
+            label = "Aa",
+            fontSize = fontSize
         )
 
-        Text(text = "${fontSize.toInt()}", fontSize = 72.sp, fontWeight = FontWeight.Bold)
-
-        FontSizeEditorButton(
-            iconId = R.drawable.increase_font_size_button,
-            onClick = { onFontSizeChange(fontSize + 1f) }
+        Slider(
+            modifier = Modifier.fillMaxWidth(),
+            value = fontSize,
+            onValueChange = onFontSizeChange,
+            valueRange = 16f..40f,
+            steps = 11,
+            track = { sliderState ->
+                SliderDefaults.Track(
+                    sliderState = sliderState,
+                    colors = SliderDefaults.colors(
+                        thumbColor = MaterialTheme.colorScheme.primary,
+                        activeTrackColor = MaterialTheme.colorScheme.primary,
+                        activeTickColor = MaterialTheme.colorScheme.background,
+                        inactiveTrackColor = MaterialTheme.colorScheme.background
+                    ),
+                    modifier = Modifier.height(24.dp)
+                )
+            }
         )
     }
 }
 
-@Composable
-private fun FontSizeEditorButton(
-    @DrawableRes iconId: Int,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val colors = LocalColorScheme.current
-
-    ElevatedButton(
-        modifier = modifier,
-        onClick = onClick,
-        shape = RoundedCornerShape(16.dp),
-        colors = ButtonDefaults.elevatedButtonColors(
-            containerColor = colors.secondary,
-            contentColor = colors.onSecondary
-        )
-    ) {
-        Icon(painter = painterResource(iconId), contentDescription = null)
-    }
-}
-
-@Composable
-private fun fontWeightPropertyItem(
-    fontWeight: NoteFontWeight,
-    onFontWeightChange: (NoteFontWeight) -> Unit
-) =
-    PropertyItem(
-        label = stringResource(R.string.font_weight_label),
-        preview = {
-            FontPreview(label = "Aa", fontWeight = fontWeight.value)
-        },
-        editor = {
-            FontWeightEditor(
-                fontWeight,
-                onFontWeightChange,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(256.dp)
-            )
-        }
-    )
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FontWeightEditor(
     fontWeight: NoteFontWeight,
     onFontWeightChange: (NoteFontWeight) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    EditorOptionsGrid(
-        options = NoteFontWeight.entries,
-        optionContent = {
-            FontEditorItem(
-                onClick = { onFontWeightChange(it) },
-                isSelected = it == fontWeight
-            ) {
-                Text(text = "Aa", fontSize = 20.sp, fontWeight = it.value)
-            }
-        },
+    Column(
         modifier = modifier
-    )
-}
-
-@Composable
-private fun FontEditorItem(
-    onClick: () -> Unit,
-    isSelected: Boolean,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
-    val colors = LocalColorScheme.current
-
-    ElevatedButton(
-        modifier = modifier.size(64.dp),
-        onClick = onClick,
-        shape = RoundedCornerShape(16.dp),
-        colors = ButtonDefaults.elevatedButtonColors(
-            containerColor = if (isSelected) colors.primary else colors.secondary,
-            contentColor = if (isSelected) colors.onPrimary else colors.onSecondary
-        ),
-        contentPadding = PaddingValues(0.dp)
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(horizontal = 24.dp, vertical = 32.dp),
+        verticalArrangement = Arrangement.spacedBy(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        content()
+        FontPreview(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(80.dp),
+            label = "Aa",
+            fontSize = 40f,
+            fontWeight = fontWeight.fontWeight
+        )
+
+        val options = NoteFontWeight.entries
+
+        SingleChoiceSegmentedButtonRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+        ) {
+            options.forEachIndexed { index, option ->
+                SegmentedButton(
+                    selected = option == fontWeight,
+                    onClick = { onFontWeightChange(option) },
+                    shape = SegmentedButtonDefaults.itemShape(
+                        index = index,
+                        count = options.size,
+                        baseShape = RoundedCornerShape(16.dp)
+                    ),
+                    colors = SegmentedButtonDefaults.colors(
+                        activeContainerColor = MaterialTheme.colorScheme.primary,
+                        activeContentColor = MaterialTheme.colorScheme.onPrimary,
+                        activeBorderColor = MaterialTheme.colorScheme.primary,
+                        inactiveContainerColor = MaterialTheme.colorScheme.surface,
+                        inactiveContentColor = MaterialTheme.colorScheme.onSurface,
+                    ),
+                    label = {
+                        Text(
+                            text = stringResource(
+                                when (option) {
+                                    NoteFontWeight.REGULAR -> R.string.font_weight_regular
+                                    NoteFontWeight.BOLD -> R.string.font_weight_bold
+                                }
+                            ),
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                    },
+                    icon = {}
+                )
+            }
+        }
     }
 }
-
-@Composable
-private fun fontFamilyPropertyItem(
-    fontFamily: NoteFontFamily,
-    onFontFamilyChange: (NoteFontFamily) -> Unit
-) =
-    PropertyItem(
-        label = stringResource(R.string.font_family_label),
-        preview = {
-            FontPreview(
-                label = "Aa",
-                fontFamily = fontFamily.value
-            )
-        },
-        editor = {
-            FontFamilyEditor(
-                fontFamily,
-                onFontFamilyChange,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(256.dp)
-            )
-        }
-    )
 
 @Composable
 private fun FontFamilyEditor(
@@ -639,12 +622,16 @@ private fun FontFamilyEditor(
 ) {
     EditorOptionsGrid(
         options = NoteFontFamily.entries,
-        optionContent = {
+        optionContent = { item ->
             FontEditorItem(
-                onClick = { onFontFamilyChange(it) },
-                isSelected = it == fontFamily
+                onClick = { onFontFamilyChange(item) },
+                isSelected = item == fontFamily
             ) {
-                Text(text = "Aa", fontSize = 20.sp, fontFamily = it.value)
+                Text(
+                    text = "Aa",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontFamily = item.fontFamily
+                )
             }
         },
         modifier = modifier
@@ -665,9 +652,36 @@ private fun <T> EditorOptionsGrid(
         horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
         contentPadding = PaddingValues(16.dp)
     ) {
-        items(options) {
-            optionContent(it)
+        items(options) { item ->
+            optionContent(item)
         }
+    }
+}
+
+@Composable
+private fun FontEditorItem(
+    onClick: () -> Unit,
+    isSelected: Boolean,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    ElevatedButton(
+        modifier = modifier.size(64.dp),
+        onClick = onClick,
+        shape = RoundedCornerShape(16.dp),
+        colors = ButtonDefaults.elevatedButtonColors(
+            containerColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
+            contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary
+        ),
+        elevation = if (isSelected) ButtonDefaults.elevatedButtonElevation(
+            pressedElevation = 0.dp,
+            defaultElevation = 0.dp,
+            hoveredElevation = 0.dp,
+            focusedElevation = 0.dp
+        ) else ButtonDefaults.elevatedButtonElevation(),
+        contentPadding = PaddingValues(0.dp)
+    ) {
+        content()
     }
 }
 
@@ -683,29 +697,35 @@ private fun NotePropertyMenu(
     items: List<PropertyItem>,
     modifier: Modifier = Modifier
 ) {
-    val colors = LocalColorScheme.current
-
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = title,
-            color = colors.onSurface,
-            fontSize = 16.sp,
+            color = MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Bold
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
         items.forEachIndexed { index, item ->
-            NotePropertyItem(
-                item, shape = when (index) {
-                    0 -> RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
-                    items.lastIndex -> RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
-                    else -> RoundedCornerShape(0.dp)
-                }
-            )
+            val shape = when {
+                items.size == 1 -> RoundedCornerShape(16.dp)
+                index == 0 -> RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+                index == items.lastIndex -> RoundedCornerShape(
+                    bottomStart = 16.dp,
+                    bottomEnd = 16.dp
+                )
+
+                else -> RoundedCornerShape(0.dp)
+            }
+
+            NotePropertyItem(item = item, shape = shape)
 
             if (index != items.lastIndex) {
-                HorizontalDivider(modifier = Modifier.fillMaxWidth(), color = colors.background)
+                HorizontalDivider(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.background
+                )
             }
         }
     }
@@ -713,7 +733,6 @@ private fun NotePropertyMenu(
 
 @Composable
 private fun NotePropertyItem(item: PropertyItem, shape: Shape, modifier: Modifier = Modifier) {
-    val colors = LocalColorScheme.current
     var clicked by remember { mutableStateOf(false) }
 
     ElevatedCard(
@@ -723,8 +742,8 @@ private fun NotePropertyItem(item: PropertyItem, shape: Shape, modifier: Modifie
         onClick = { clicked = true },
         shape = shape,
         colors = CardDefaults.cardColors(
-            containerColor = colors.surface,
-            contentColor = colors.onSurface
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface
         )
     ) {
         Row(
@@ -736,8 +755,8 @@ private fun NotePropertyItem(item: PropertyItem, shape: Shape, modifier: Modifie
         ) {
             Text(
                 text = item.label,
-                color = colors.onSurface,
-                fontSize = 15.sp
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyLarge
             )
 
             item.preview()
@@ -759,16 +778,14 @@ private fun NotePropertyItemEditorBottomSheet(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
-    val colors = LocalColorScheme.current
-
     ModalBottomSheet(
         modifier = modifier
             .systemBarsPadding()
             .padding(16.dp),
         onDismissRequest = onDismissRequest,
         shape = RoundedCornerShape(24.dp),
-        containerColor = colors.surface,
-        contentColor = colors.onSurface,
+        containerColor = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         dragHandle = null,
         contentWindowInsets = { WindowInsets(bottom = 0.dp) }
     ) {

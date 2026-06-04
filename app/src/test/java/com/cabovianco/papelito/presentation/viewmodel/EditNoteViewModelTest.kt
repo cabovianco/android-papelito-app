@@ -27,10 +27,10 @@ class EditNoteViewModelTest {
                 Note(
                     id = 1L,
                     text = "Text",
-                    backgroundColor = NoteColor.WHITE,
-                    fontColor = NoteColor.BLACK,
+                    backgroundColor = NoteColor.NEUTRAL_100,
+                    fontColor = NoteColor.NEUTRAL_900,
                     fontSize = 16F,
-                    fontWeight = NoteFontWeight.NORMAL,
+                    fontWeight = NoteFontWeight.REGULAR,
                     fontFamily = NoteFontFamily.SANS_SERIF
                 )
             )
