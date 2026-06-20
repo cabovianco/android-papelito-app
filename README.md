@@ -17,10 +17,11 @@ Simple to use, flexible by design — so every note feels like yours.
 
 ## Screenshots
 
-![Screenshot-1](assets/img/Screenshot-1.png)
-![Screenshot-2](assets/img/Screenshot-2.png)
-![Screenshot-3](assets/img/Screenshot-3.png)
-![Screenshot-4](assets/img/Screenshot-4.png)
+|                                              |                                              |
+|:--------------------------------------------:|:--------------------------------------------:|
+| ![Screenshot-1](assets/img/Screenshot-1.png) | ![Screenshot-2](assets/img/Screenshot-2.png) |
+| ![Screenshot-3](assets/img/Screenshot-3.png) | ![Screenshot-4](assets/img/Screenshot-4.png) |
+
 
 ## Installation
 
